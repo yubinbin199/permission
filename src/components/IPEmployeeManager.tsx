@@ -14,7 +14,7 @@ import {
   Form,
   message
 } from 'antd';
-import { SearchOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import { CPEmployee, IPEmployeeFilterType } from '../types';
 import { mockIPEmployees, ipGameOptions } from '../data/ipEmployeeData';
 

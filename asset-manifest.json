@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/permission/static/css/main.d802e3cd.css",
+    "main.js": "/permission/static/js/main.8b29b43a.js",
+    "index.html": "/permission/index.html",
+    "main.d802e3cd.css.map": "/permission/static/css/main.d802e3cd.css.map",
+    "main.8b29b43a.js.map": "/permission/static/js/main.8b29b43a.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d802e3cd.css",
+    "static/js/main.8b29b43a.js"
+  ]
+}

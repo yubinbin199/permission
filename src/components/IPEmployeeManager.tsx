@@ -15,7 +15,7 @@ import {
   message
 } from 'antd';
 import { SearchOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { CPEmployee, CPEmployeeFilterType } from '../types';
+import { CPEmployee, IPEmployeeFilterType } from '../types';
 import { mockIPEmployees, ipGameOptions } from '../data/ipEmployeeData';
 
 const { Option } = Select;
@@ -45,16 +45,11 @@ const IPEmployeeManager: React.FC<IPEmployeeManagerProps> = ({ accountType = 'ad
 
   // 状态管理
   const [employees, setEmployees] = useState<CPEmployee[]>(getFilteredEmployeesByAccount()); // IP员工数据
-  const [filters, setFilters] = useState<CPEmployeeFilterType>({
+  const [filters, setFilters] = useState<IPEmployeeFilterType>({
+    employeeId: '',
     name: '',
-    romanName: '',
-    ctwEmail: '',
     game: '',
-    company: '',
-    position: '',
-    subPosition: '',
-    status: '',
-    employmentType: ''
+    company: ''
   }); // 过滤器状态
   const [editingG123ID, setEditingG123ID] = useState<string | null>(null); // 正在编辑的G123ID行
   const [tempG123ID, setTempG123ID] = useState<string>(''); // 临时编辑值
@@ -67,7 +62,7 @@ const IPEmployeeManager: React.FC<IPEmployeeManagerProps> = ({ accountType = 'ad
   }, [getFilteredEmployeesByAccount]);
 
   // 过滤器变化处理函数
-  const handleFilterChange = (key: keyof CPEmployeeFilterType, value: string) => {
+  const handleFilterChange = (key: keyof IPEmployeeFilterType, value: string) => {
     setFilters(prev => ({
       ...prev,
       [key]: value
@@ -104,12 +99,14 @@ const IPEmployeeManager: React.FC<IPEmployeeManagerProps> = ({ accountType = 'ad
   // 过滤后的员工数据
   const filteredEmployees = useMemo(() => {
     return employees.filter(employee => {
-      // 姓名搜索
-      const nameMatch = employee.name.toLowerCase().includes(filters.name.toLowerCase()) ||
-                       employee.romanName.toLowerCase().includes(filters.name.toLowerCase());
+      // 编号ID搜索
+      const employeeIdMatch = !filters.employeeId || 
+        employee.employeeNumber.toString().includes(filters.employeeId);
       
-      // CTW邮箱搜索
-      const emailMatch = !filters.ctwEmail || employee.ctwEmail.toLowerCase().includes(filters.ctwEmail.toLowerCase());
+      // 姓名搜索（支持中文名和罗马字名）
+      const nameMatch = !filters.name ||
+        employee.name.toLowerCase().includes(filters.name.toLowerCase()) ||
+        employee.romanName.toLowerCase().includes(filters.name.toLowerCase());
       
       // Game筛选
       const gameMatch = !filters.game || employee.game === filters.game;
@@ -117,16 +114,23 @@ const IPEmployeeManager: React.FC<IPEmployeeManagerProps> = ({ accountType = 'ad
       // 公司筛选
       const companyMatch = !filters.company || employee.company === filters.company;
 
-      return nameMatch && emailMatch && gameMatch && companyMatch;
+      return employeeIdMatch && nameMatch && gameMatch && companyMatch;
     });
   }, [employees, filters]);
 
   // 表格列配置
   const columns = [
     {
+      title: '编号ID',
+      dataIndex: 'employeeNumber',
+      key: 'employeeNumber',
+      width: 80,
+      sorter: (a: CPEmployee, b: CPEmployee) => a.employeeNumber - b.employeeNumber,
+    },
+    {
       title: '姓名',
       dataIndex: 'name',
-      width: 150,
+      width: 200,
       render: (_: any, record: CPEmployee) => (
         <Space>
           <Avatar src={record.avatar} size={32} />
@@ -170,53 +174,48 @@ const IPEmployeeManager: React.FC<IPEmployeeManagerProps> = ({ accountType = 'ad
       ),
     },
     {
-      title: 'CTW邮箱地址',
-      dataIndex: 'ctwEmail',
-      width: 200,
-    },
-    {
       title: 'G123ID',
       dataIndex: 'g123ID',
       width: 150,
       render: (_: any, record: CPEmployee) => {
-        if (editingG123ID === record.id) {
-          return (
-            <Space.Compact>
-              <Input
-                value={tempG123ID}
-                onChange={(e) => setTempG123ID(e.target.value)}
-                size="small"
-                style={{ width: 80 }}
-              />
-              <Button 
-                size="small" 
-                type="primary" 
-                onClick={() => saveG123ID(record.id)}
-              >
-                保存
-              </Button>
-              <Button 
-                size="small" 
-                onClick={cancelEditG123ID}
-              >
-                取消
-              </Button>
-            </Space.Compact>
-          );
-        }
+        const isEditing = editingG123ID === record.id;
+        
         return (
-          <Space>
-            <span>{record.g123ID || '-'}</span>
-            <Button 
-              type="text" 
-              icon={<EditOutlined />} 
-              size="small"
-              onClick={() => startEditG123ID(record.id, record.g123ID)}
-            />
-          </Space>
+          <div>
+            {isEditing ? (
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <Input
+                  size="small"
+                  value={tempG123ID}
+                  onChange={(e) => setTempG123ID(e.target.value)}
+                  onPressEnter={() => saveG123ID(record.id)}
+                  style={{ width: '100px' }}
+                />
+                <Button size="small" type="primary" onClick={() => saveG123ID(record.id)}>
+                  保存
+                </Button>
+                <Button size="small" onClick={cancelEditG123ID}>
+                  取消
+                </Button>
+              </div>
+            ) : (
+              <div>
+                {record.g123ID && (
+                  <Tooltip title="点击编辑G123ID">
+                    <div 
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => startEditG123ID(record.id, record.g123ID)}
+                    >
+                      {record.g123ID}
+                    </div>
+                  </Tooltip>
+                )}
+              </div>
+            )}
+          </div>
         );
-      },
-    },
+      }
+    }
   ];
 
   return (
@@ -224,6 +223,14 @@ const IPEmployeeManager: React.FC<IPEmployeeManagerProps> = ({ accountType = 'ad
       <Card>
         {/* 筛选器 */}
         <Row gutter={16} style={{ marginBottom: '16px' }}>
+          <Col span={4}>
+            <Input
+              placeholder="编号ID"
+              prefix={<SearchOutlined />}
+              value={filters.employeeId}
+              onChange={(e) => handleFilterChange('employeeId', e.target.value)}
+            />
+          </Col>
           <Col span={6}>
             <Input
               placeholder="搜索姓名或罗马字"
@@ -259,7 +266,7 @@ const IPEmployeeManager: React.FC<IPEmployeeManagerProps> = ({ accountType = 'ad
               <Option value="KADOKAWA">KADOKAWA</Option>
             </Select>
           </Col>
-          <Col span={10}>
+          <Col span={6}>
             <Space>
               <Tooltip title="添加新的IP员工">
                 <Button type="primary" icon={<PlusOutlined />} onClick={handleAddEmployee}>
@@ -348,17 +355,6 @@ const IPEmployeeManager: React.FC<IPEmployeeManagerProps> = ({ accountType = 'ad
               <Option value="讲谈社">讲谈社</Option>
               <Option value="KADOKAWA">KADOKAWA</Option>
             </Select>
-          </Form.Item>
-
-          <Form.Item
-            name="ctwEmail"
-            label="CTW邮箱地址"
-            rules={[
-              { required: true, message: '请输入CTW邮箱地址' },
-              { type: 'email', message: '请输入有效的邮箱地址' }
-            ]}
-          >
-            <Input placeholder="请输入CTW邮箱地址" />
           </Form.Item>
         </Form>
       </Drawer>

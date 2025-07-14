@@ -17,10 +17,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
-    "deploy-github": "npm run build && gh-pages -d build",
-    "deploy-vercel": "npm run build"
+    "build-github": "PUBLIC_URL=/permission npm run build",
+    "deploy-github": "npm run build-github && gh-pages -d build",
+    "deploy": "npm run deploy-github"
   },
   "eslintConfig": {
     "extends": [

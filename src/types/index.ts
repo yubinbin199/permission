@@ -89,15 +89,15 @@ export interface CPEmployee {
 
 // CP员工筛选器类型
 export interface CPEmployeeFilterType {
-  name: string;              // 姓名搜索
-  romanName: string;         // 罗马字姓名搜索
-  ctwEmail: string;          // CTW邮箱搜索
-  game: string;              // Game筛选
-  company: string;           // 公司筛选
-  position: string;          // 职位筛选
-  subPosition: string;       // 子职位筛选
-  status: string;            // 状态筛选
-  employmentType: string;    // 雇佣类型筛选
+  employeeId: string;            // 编号ID搜索
+  name: string;                  // 姓名搜索
+  romanName: string;             // 罗马字姓名搜索
+  game: string;                  // Game筛选
+  company: string;               // 公司筛选
+  position: string;              // 职位筛选
+  subPosition: string;           // 子职位筛选
+  status: string;                // 状态筛选
+  employmentType: string;        // 雇佣类型筛选
 }
 
 // 内部员工信息类型定义
@@ -137,4 +137,12 @@ export interface InternalEmployeeFilterType {
   gender: string;            // 性别
   employmentStatus: string;  // 雇佣状态
   ctwEmail: string;          // CTW邮箱搜索
+}
+
+// IP员工筛选器类型
+export interface IPEmployeeFilterType {
+  employeeId: string;            // 编号ID搜索
+  name: string;                  // 姓名搜索
+  game: string;                  // Game筛选
+  company: string;               // 公司筛选
 } 

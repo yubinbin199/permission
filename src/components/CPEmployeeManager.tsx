@@ -58,9 +58,9 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
   
   // 筛选状态
   const [filters, setFilters] = useState<CPEmployeeFilterType>({
+    employeeId: '',
     name: '',
     romanName: '',
-    ctwEmail: '',
     game: '',
     company: '',
     position: '',
@@ -77,11 +77,39 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
   // 根据筛选条件过滤员工数据
   const filteredEmployees = useMemo(() => {
     return employees.filter(employee => {
-      return Object.entries(filters).every(([key, value]) => {
-        if (!value) return true;
-        const employeeValue = employee[key as keyof CPEmployee]?.toString().toLowerCase() || '';
-        return employeeValue.includes(value.toLowerCase());
-      });
+      // 编号ID搜索
+      const employeeIdMatch = !filters.employeeId || 
+        employee.employeeNumber.toString().includes(filters.employeeId);
+      
+      // 姓名搜索（支持中文名和罗马字名）
+      const nameMatch = !filters.name || 
+        employee.name.toLowerCase().includes(filters.name.toLowerCase()) ||
+        employee.romanName.toLowerCase().includes(filters.name.toLowerCase());
+      
+      // 罗马字姓名搜索
+      const romanNameMatch = !filters.romanName || 
+        employee.romanName.toLowerCase().includes(filters.romanName.toLowerCase());
+      
+      // Game筛选
+      const gameMatch = !filters.game || employee.game === filters.game;
+      
+      // 公司筛选
+      const companyMatch = !filters.company || employee.company === filters.company;
+      
+      // 职位筛选
+      const positionMatch = !filters.position || employee.position === filters.position;
+      
+      // 子职位筛选
+      const subPositionMatch = !filters.subPosition || employee.subPosition === filters.subPosition;
+      
+      // 状态筛选
+      const statusMatch = !filters.status || employee.status === filters.status;
+      
+      // 雇佣类型筛选
+      const employmentTypeMatch = !filters.employmentType || employee.employmentType === filters.employmentType;
+
+      return employeeIdMatch && nameMatch && romanNameMatch && gameMatch && 
+             companyMatch && positionMatch && subPositionMatch && statusMatch && employmentTypeMatch;
     });
   }, [employees, filters]);
 
@@ -146,55 +174,76 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
     });
   };
 
-  // 表格列配置 - 新增所属公司列
+  // 表格列配置
   const columns = [
+    {
+      title: '编号ID',
+      dataIndex: 'employeeNumber',
+      key: 'employeeNumber',
+      width: 80,
+      sorter: (a: CPEmployee, b: CPEmployee) => a.employeeNumber - b.employeeNumber,
+    },
     {
       title: '姓名',
       dataIndex: 'name',
       key: 'name',
-      width: 160,
-      sorter: (a: CPEmployee, b: CPEmployee) => a.name.localeCompare(b.name),
+      width: 200,
       render: (_: any, record: CPEmployee) => (
         <Space>
           <Avatar src={record.avatar} size={40} />
           <div>
             <div style={{ fontWeight: 'bold' }}>{record.name}</div>
+            <div style={{ fontSize: '12px', color: '#666' }}>{record.romanName}</div>
           </div>
         </Space>
-      )
+      ),
     },
     {
       title: '姓名罗马字',
       dataIndex: 'romanName',
       key: 'romanName',
       width: 160,
-      sorter: (a: CPEmployee, b: CPEmployee) => a.romanName.localeCompare(b.romanName),
     },
     {
       title: 'Game',
       dataIndex: 'game',
       key: 'game',
       width: 120,
-      sorter: (a: CPEmployee, b: CPEmployee) => a.game.localeCompare(b.game),
-      render: (game: string) => {
-        // 根据game值显示对应的标签
-        const gameMap: { [key: string]: string } = {
-          'vividarmy': 'VividArmy',
-          'jay': 'Jay',
-          'kumo': 'Kumo',
-          'peter': 'Peter',
-          'highschool': 'HighSchool',
-          'auo': 'AUO'
-        };
-        return gameMap[game] || game;
-      }
+      render: (game: string) => (
+        <span style={{ 
+          padding: '4px 8px', 
+          background: '#f0f0f0', 
+          borderRadius: '4px',
+          fontSize: '12px'
+        }}>
+          {game}
+        </span>
+      ),
     },
     {
-      title: 'CTW邮箱地址',
-      dataIndex: 'ctwEmail',
-      key: 'ctwEmail',
-      width: 180,
-      sorter: (a: CPEmployee, b: CPEmployee) => a.ctwEmail.localeCompare(b.ctwEmail),
+      title: '性别',
+      dataIndex: 'gender',
+      key: 'gender',
+      width: 60,
+      render: (gender: string) => gender === 'male' ? '男' : '女',
+    },
+    {
+      title: '电话号码',
+      dataIndex: 'phoneNumber',
+      key: 'phoneNumber',
+      width: 140,
+    },
+    {
+      title: '雇佣类型',
+      dataIndex: 'employmentType',
+      key: 'employmentType',
+      width: 100,
+    },
+    {
+      title: '职位',
+      dataIndex: 'position',
+      key: 'position',
+      width: 100,
     },
     {
       title: '子职位',
@@ -203,11 +252,16 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
       width: 100,
     },
     {
+      title: '状态',
+      dataIndex: 'status',
+      key: 'status',
+      width: 80,
+    },
+    {
       title: '所属公司',
       dataIndex: 'company',
       key: 'company',
       width: 120,
-      sorter: (a: CPEmployee, b: CPEmployee) => a.company.localeCompare(b.company),
     },
     {
       title: 'G123ID',
@@ -220,41 +274,23 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
         return (
           <div>
             {isEditing ? (
-              <Input
-                size="small"
-                value={tempG123ID}
-                onChange={(e) => setTempG123ID(e.target.value)}
-                onPressEnter={() => saveG123ID(record.id)}
-                onBlur={() => saveG123ID(record.id)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Escape') {
-                    cancelEditG123ID();
-                  }
-                }}
-                autoFocus
-                placeholder="输入G123ID"
-              />
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <Input
+                  size="small"
+                  value={tempG123ID}
+                  onChange={(e) => setTempG123ID(e.target.value)}
+                  onPressEnter={() => saveG123ID(record.id)}
+                  style={{ width: '100px' }}
+                />
+                <Button size="small" type="primary" onClick={() => saveG123ID(record.id)}>
+                  保存
+                </Button>
+                <Button size="small" onClick={cancelEditG123ID}>
+                  取消
+                </Button>
+              </div>
             ) : (
-              <div style={{ minHeight: '24px', display: 'flex', alignItems: 'center' }}>
-                {record.g123ID || (
-                  <Tooltip title="点击编辑G123ID">
-                    <div 
-                      style={{ 
-                        cursor: 'pointer', 
-                        color: '#999', 
-                        display: 'flex', 
-                        alignItems: 'center',
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        border: '1px dashed #d9d9d9'
-                      }}
-                      onClick={() => startEditG123ID(record.id, record.g123ID)}
-                    >
-                      <EditOutlined style={{ marginRight: '4px', fontSize: '12px' }} />
-                      点击添加
-                    </div>
-                  </Tooltip>
-                )}
+              <div>
                 {record.g123ID && (
                   <Tooltip title="点击编辑G123ID">
                     <div 
@@ -277,8 +313,16 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
     <div style={{ padding: '24px', backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
       <Card>
         {/* 筛选器区域 */}
-        <Row gutter={16} style={{ marginBottom: '24px' }}>
-          <Col span={6}>
+        <Row gutter={16} style={{ marginBottom: '16px' }}>
+          <Col span={4}>
+            <Input
+              placeholder="编号ID"
+              prefix={<SearchOutlined />}
+              value={filters.employeeId}
+              onChange={(e) => handleFilterChange('employeeId', e.target.value)}
+            />
+          </Col>
+          <Col span={4}>
             <Input
               placeholder="姓名"
               prefix={<SearchOutlined />}
@@ -286,17 +330,15 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
               onChange={(e) => handleFilterChange('name', e.target.value)}
             />
           </Col>
-          
-          <Col span={6}>
+          <Col span={4}>
             <Input
-              placeholder="CTW邮箱地址"
+              placeholder="罗马字姓名"
               prefix={<SearchOutlined />}
-              value={filters.ctwEmail}
-              onChange={(e) => handleFilterChange('ctwEmail', e.target.value)}
+              value={filters.romanName}
+              onChange={(e) => handleFilterChange('romanName', e.target.value)}
             />
           </Col>
-          
-          <Col span={6}>
+          <Col span={4}>
             <Select
               placeholder="Game"
               style={{ width: '100%' }}
@@ -304,15 +346,42 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
               onChange={(value) => handleFilterChange('game', value || '')}
               allowClear
             >
-              {gameOptions.map(option => (
+              {gameOpts.map(option => (
                 <Option key={option.value} value={option.value}>
                   {option.label}
                 </Option>
               ))}
             </Select>
           </Col>
-          
-          <Col span={6}>
+          <Col span={4}>
+            <Select
+              placeholder="公司"
+              style={{ width: '100%' }}
+              value={filters.company || undefined}
+              onChange={(value) => handleFilterChange('company', value || '')}
+              allowClear
+            >
+              <Option value="CyberAgent">CyberAgent</Option>
+              <Option value="DeNA">DeNA</Option>
+            </Select>
+          </Col>
+          <Col span={4}>
+            <Select
+              placeholder="职位"
+              style={{ width: '100%' }}
+              value={filters.position || undefined}
+              onChange={(value) => handleFilterChange('position', value || '')}
+              allowClear
+            >
+              <Option value="イラストレーター">イラストレーター</Option>
+              <Option value="アニメーター">アニメーター</Option>
+              <Option value="デザイナー">デザイナー</Option>
+            </Select>
+          </Col>
+        </Row>
+
+        <Row gutter={16} style={{ marginBottom: '24px' }}>
+          <Col span={4}>
             <Select
               placeholder="子职位"
               style={{ width: '100%' }}
@@ -323,6 +392,31 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
               <Option value="UI">UI</Option>
               <Option value="banner">banner</Option>
               <Option value="background">background</Option>
+            </Select>
+          </Col>
+          <Col span={4}>
+            <Select
+              placeholder="状态"
+              style={{ width: '100%' }}
+              value={filters.status || undefined}
+              onChange={(value) => handleFilterChange('status', value || '')}
+              allowClear
+            >
+              <Option value="在职">在职</Option>
+              <Option value="离职">离职</Option>
+            </Select>
+          </Col>
+          <Col span={4}>
+            <Select
+              placeholder="雇佣类型"
+              style={{ width: '100%' }}
+              value={filters.employmentType || undefined}
+              onChange={(value) => handleFilterChange('employmentType', value || '')}
+              allowClear
+            >
+              <Option value="正社员">正社员</Option>
+              <Option value="契约工">契约工</Option>
+              <Option value="派遣">派遣</Option>
             </Select>
           </Col>
         </Row>
@@ -354,7 +448,7 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
             defaultPageSize: 10,
             pageSizeOptions: ['10', '20', '50', '100']
           }}
-          scroll={{ x: 1100 }}
+          scroll={{ x: 1400 }}
           size="middle"
           rowSelection={
             // 只有admin和cp-leader可以选择行

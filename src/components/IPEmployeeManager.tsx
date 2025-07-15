@@ -48,6 +48,7 @@ const IPEmployeeManager: React.FC<IPEmployeeManagerProps> = ({ accountType = 'ad
   const [filters, setFilters] = useState<IPEmployeeFilterType>({
     employeeId: '',
     name: '',
+    ctwEmail: '',
     game: '',
     company: ''
   }); // 过滤器状态
@@ -108,13 +109,17 @@ const IPEmployeeManager: React.FC<IPEmployeeManagerProps> = ({ accountType = 'ad
         employee.name.toLowerCase().includes(filters.name.toLowerCase()) ||
         employee.romanName.toLowerCase().includes(filters.name.toLowerCase());
       
+      // CTW邮箱搜索
+      const emailMatch = !filters.ctwEmail || 
+        employee.ctwEmail.toLowerCase().includes(filters.ctwEmail.toLowerCase());
+      
       // Game筛选
       const gameMatch = !filters.game || employee.game === filters.game;
       
       // 公司筛选
       const companyMatch = !filters.company || employee.company === filters.company;
 
-      return employeeIdMatch && nameMatch && gameMatch && companyMatch;
+      return employeeIdMatch && nameMatch && emailMatch && gameMatch && companyMatch;
     });
   }, [employees, filters]);
 
@@ -140,6 +145,12 @@ const IPEmployeeManager: React.FC<IPEmployeeManagerProps> = ({ accountType = 'ad
           </div>
         </Space>
       ),
+    },
+    {
+      title: 'CTW邮箱地址',
+      dataIndex: 'ctwEmail',
+      key: 'ctwEmail',
+      width: 200,
     },
     {
       title: 'Game',
@@ -223,7 +234,7 @@ const IPEmployeeManager: React.FC<IPEmployeeManagerProps> = ({ accountType = 'ad
       <Card>
         {/* 筛选器 */}
         <Row gutter={16} style={{ marginBottom: '16px' }}>
-          <Col span={4}>
+          <Col span={3}>
             <Input
               placeholder="编号ID"
               prefix={<SearchOutlined />}
@@ -231,7 +242,7 @@ const IPEmployeeManager: React.FC<IPEmployeeManagerProps> = ({ accountType = 'ad
               onChange={(e) => handleFilterChange('employeeId', e.target.value)}
             />
           </Col>
-          <Col span={6}>
+          <Col span={5}>
             <Input
               placeholder="搜索姓名或罗马字"
               prefix={<SearchOutlined />}
@@ -239,7 +250,15 @@ const IPEmployeeManager: React.FC<IPEmployeeManagerProps> = ({ accountType = 'ad
               onChange={(e) => handleFilterChange('name', e.target.value)}
             />
           </Col>
-          <Col span={4}>
+          <Col span={5}>
+            <Input
+              placeholder="CTW邮箱地址"
+              prefix={<SearchOutlined />}
+              value={filters.ctwEmail}
+              onChange={(e) => handleFilterChange('ctwEmail', e.target.value)}
+            />
+          </Col>
+          <Col span={3}>
             <Select
               placeholder="Game"
               style={{ width: '100%' }}
@@ -254,7 +273,7 @@ const IPEmployeeManager: React.FC<IPEmployeeManagerProps> = ({ accountType = 'ad
               ))}
             </Select>
           </Col>
-          <Col span={4}>
+          <Col span={3}>
             <Select
               placeholder="所属公司"
               style={{ width: '100%' }}
@@ -266,7 +285,7 @@ const IPEmployeeManager: React.FC<IPEmployeeManagerProps> = ({ accountType = 'ad
               <Option value="KADOKAWA">KADOKAWA</Option>
             </Select>
           </Col>
-          <Col span={6}>
+          <Col span={5}>
             <Space>
               <Tooltip title="添加新的IP员工">
                 <Button type="primary" icon={<PlusOutlined />} onClick={handleAddEmployee}>
@@ -282,7 +301,7 @@ const IPEmployeeManager: React.FC<IPEmployeeManagerProps> = ({ accountType = 'ad
           columns={columns}
           dataSource={filteredEmployees}
           rowKey="id"
-          scroll={{ x: 800 }}
+          scroll={{ x: 1000 }}
           pagination={{
             showSizeChanger: true,
             showQuickJumper: true,
@@ -330,6 +349,17 @@ const IPEmployeeManager: React.FC<IPEmployeeManagerProps> = ({ accountType = 'ad
             rules={[{ required: true, message: '请输入罗马字姓名' }]}
           >
             <Input placeholder="请输入罗马字姓名" />
+          </Form.Item>
+
+          <Form.Item
+            name="ctwEmail"
+            label="CTW邮箱地址"
+            rules={[
+              { required: true, message: '请输入CTW邮箱地址' },
+              { type: 'email', message: '请输入有效的邮箱地址' }
+            ]}
+          >
+            <Input placeholder="请输入CTW邮箱地址" />
           </Form.Item>
 
           <Form.Item

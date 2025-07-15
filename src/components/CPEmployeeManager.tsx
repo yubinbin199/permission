@@ -61,6 +61,7 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
     employeeId: '',
     name: '',
     romanName: '',
+    ctwEmail: '',
     game: '',
     company: '',
     subPosition: ''
@@ -87,6 +88,10 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
       const romanNameMatch = !filters.romanName || 
         employee.romanName.toLowerCase().includes(filters.romanName.toLowerCase());
       
+      // CTW邮箱搜索
+      const emailMatch = !filters.ctwEmail || 
+        employee.ctwEmail.toLowerCase().includes(filters.ctwEmail.toLowerCase());
+      
       // Game筛选
       const gameMatch = !filters.game || employee.game === filters.game;
       
@@ -96,7 +101,7 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
       // 子职位筛选
       const subPositionMatch = !filters.subPosition || employee.subPosition === filters.subPosition;
 
-      return employeeIdMatch && nameMatch && romanNameMatch && gameMatch && 
+      return employeeIdMatch && nameMatch && romanNameMatch && emailMatch && gameMatch && 
              companyMatch && subPositionMatch;
     });
   }, [employees, filters]);
@@ -193,6 +198,12 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
       width: 160,
     },
     {
+      title: 'CTW邮箱地址',
+      dataIndex: 'ctwEmail',
+      key: 'ctwEmail',
+      width: 200,
+    },
+    {
       title: 'Game',
       dataIndex: 'game',
       key: 'game',
@@ -248,16 +259,22 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
               </div>
             ) : (
               <div>
-                {record.g123ID && (
-                  <Tooltip title="点击编辑G123ID">
-                    <div 
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => startEditG123ID(record.id, record.g123ID)}
-                    >
-                      {record.g123ID}
-                    </div>
-                  </Tooltip>
-                )}
+                <Tooltip title="点击编辑G123ID">
+                  <div 
+                    style={{ 
+                      cursor: 'pointer',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      border: '1px dashed #d9d9d9',
+                      minHeight: '24px',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                    onClick={() => startEditG123ID(record.id, record.g123ID || '')}
+                  >
+                    {record.g123ID || '点击添加G123ID'}
+                  </div>
+                </Tooltip>
               </div>
             )}
           </div>
@@ -271,7 +288,7 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
       <Card>
         {/* 筛选器区域 */}
         <Row gutter={16} style={{ marginBottom: '16px' }}>
-          <Col span={4}>
+          <Col span={3}>
             <Input
               placeholder="编号ID"
               prefix={<SearchOutlined />}
@@ -296,6 +313,14 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
             />
           </Col>
           <Col span={4}>
+            <Input
+              placeholder="CTW邮箱地址"
+              prefix={<SearchOutlined />}
+              value={filters.ctwEmail}
+              onChange={(e) => handleFilterChange('ctwEmail', e.target.value)}
+            />
+          </Col>
+          <Col span={3}>
             <Select
               placeholder="Game"
               style={{ width: '100%' }}
@@ -310,7 +335,7 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
               ))}
             </Select>
           </Col>
-          <Col span={4}>
+          <Col span={3}>
             <Select
               placeholder="公司"
               style={{ width: '100%' }}
@@ -322,7 +347,7 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
               <Option value="DeNA">DeNA</Option>
             </Select>
           </Col>
-          <Col span={4}>
+          <Col span={3}>
             <Select
               placeholder="子职位"
               style={{ width: '100%' }}
@@ -364,7 +389,7 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
             defaultPageSize: 10,
             pageSizeOptions: ['10', '20', '50', '100']
           }}
-          scroll={{ x: 1000 }}
+          scroll={{ x: 1200 }}
           size="middle"
           rowSelection={
             // 只有admin和cp-leader可以选择行

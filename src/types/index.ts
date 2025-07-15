@@ -92,6 +92,7 @@ export interface CPEmployeeFilterType {
   employeeId: string;            // 编号ID搜索
   name: string;                  // 姓名搜索
   romanName: string;             // 罗马字姓名搜索
+  ctwEmail: string;              // CTW邮箱搜索
   game: string;                  // Game筛选
   company: string;               // 公司筛选
   subPosition: string;           // 子职位筛选
@@ -140,6 +141,7 @@ export interface InternalEmployeeFilterType {
 export interface IPEmployeeFilterType {
   employeeId: string;            // 编号ID搜索
   name: string;                  // 姓名搜索
+  ctwEmail: string;              // CTW邮箱搜索
   game: string;                  // Game筛选
   company: string;               // 公司筛选
 } 

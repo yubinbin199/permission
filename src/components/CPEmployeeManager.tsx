@@ -198,7 +198,7 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
       width: 160,
     },
     {
-      title: 'CTW邮箱地址',
+      title: '邮箱地址',
       dataIndex: 'ctwEmail',
       key: 'ctwEmail',
       width: 200,
@@ -314,7 +314,7 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
           </Col>
           <Col span={4}>
             <Input
-              placeholder="CTW邮箱地址"
+              placeholder="邮箱地址"
               prefix={<SearchOutlined />}
               value={filters.ctwEmail}
               onChange={(e) => handleFilterChange('ctwEmail', e.target.value)}
@@ -462,14 +462,14 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
             </Form.Item>
 
             <Form.Item
-              label="CTW邮箱地址"
+              label="邮箱地址"
               name="ctwEmail"
               rules={[
-                { required: true, message: '请输入CTW邮箱地址' },
+                { required: true, message: '请输入邮箱地址' },
                 { type: 'email', message: '请输入有效的邮箱地址' }
               ]}
             >
-              <Input placeholder="请输入CTW邮箱地址" />
+              <Input placeholder="请输入邮箱地址" />
             </Form.Item>
 
             <Form.Item

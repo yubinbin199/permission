@@ -147,7 +147,7 @@ const IPEmployeeManager: React.FC<IPEmployeeManagerProps> = ({ accountType = 'ad
       ),
     },
     {
-      title: 'CTW邮箱地址',
+      title: '邮箱地址',
       dataIndex: 'ctwEmail',
       key: 'ctwEmail',
       width: 200,
@@ -252,7 +252,7 @@ const IPEmployeeManager: React.FC<IPEmployeeManagerProps> = ({ accountType = 'ad
           </Col>
           <Col span={5}>
             <Input
-              placeholder="CTW邮箱地址"
+              placeholder="邮箱地址"
               prefix={<SearchOutlined />}
               value={filters.ctwEmail}
               onChange={(e) => handleFilterChange('ctwEmail', e.target.value)}
@@ -353,13 +353,13 @@ const IPEmployeeManager: React.FC<IPEmployeeManagerProps> = ({ accountType = 'ad
 
           <Form.Item
             name="ctwEmail"
-            label="CTW邮箱地址"
+            label="邮箱地址"
             rules={[
-              { required: true, message: '请输入CTW邮箱地址' },
+              { required: true, message: '请输入邮箱地址' },
               { type: 'email', message: '请输入有效的邮箱地址' }
             ]}
           >
-            <Input placeholder="请输入CTW邮箱地址" />
+            <Input placeholder="请输入邮箱地址" />
           </Form.Item>
 
           <Form.Item

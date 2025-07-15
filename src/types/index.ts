@@ -94,10 +94,7 @@ export interface CPEmployeeFilterType {
   romanName: string;             // 罗马字姓名搜索
   game: string;                  // Game筛选
   company: string;               // 公司筛选
-  position: string;              // 职位筛选
   subPosition: string;           // 子职位筛选
-  status: string;                // 状态筛选
-  employmentType: string;        // 雇佣类型筛选
 }
 
 // 内部员工信息类型定义

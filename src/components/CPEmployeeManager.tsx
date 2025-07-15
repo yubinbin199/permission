@@ -63,10 +63,7 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
     romanName: '',
     game: '',
     company: '',
-    position: '',
-    subPosition: '',
-    status: '',
-    employmentType: ''
+    subPosition: ''
   });
 
   // 当账号类型或初始数据变化时更新员工数据
@@ -96,20 +93,11 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
       // 公司筛选
       const companyMatch = !filters.company || employee.company === filters.company;
       
-      // 职位筛选
-      const positionMatch = !filters.position || employee.position === filters.position;
-      
       // 子职位筛选
       const subPositionMatch = !filters.subPosition || employee.subPosition === filters.subPosition;
-      
-      // 状态筛选
-      const statusMatch = !filters.status || employee.status === filters.status;
-      
-      // 雇佣类型筛选
-      const employmentTypeMatch = !filters.employmentType || employee.employmentType === filters.employmentType;
 
       return employeeIdMatch && nameMatch && romanNameMatch && gameMatch && 
-             companyMatch && positionMatch && subPositionMatch && statusMatch && employmentTypeMatch;
+             companyMatch && subPositionMatch;
     });
   }, [employees, filters]);
 
@@ -221,41 +209,10 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
       ),
     },
     {
-      title: '性别',
-      dataIndex: 'gender',
-      key: 'gender',
-      width: 60,
-      render: (gender: string) => gender === 'male' ? '男' : '女',
-    },
-    {
-      title: '电话号码',
-      dataIndex: 'phoneNumber',
-      key: 'phoneNumber',
-      width: 140,
-    },
-    {
-      title: '雇佣类型',
-      dataIndex: 'employmentType',
-      key: 'employmentType',
-      width: 100,
-    },
-    {
-      title: '职位',
-      dataIndex: 'position',
-      key: 'position',
-      width: 100,
-    },
-    {
       title: '子职位',
       dataIndex: 'subPosition',
       key: 'subPosition',
       width: 100,
-    },
-    {
-      title: '状态',
-      dataIndex: 'status',
-      key: 'status',
-      width: 80,
     },
     {
       title: '所属公司',
@@ -367,22 +324,6 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
           </Col>
           <Col span={4}>
             <Select
-              placeholder="职位"
-              style={{ width: '100%' }}
-              value={filters.position || undefined}
-              onChange={(value) => handleFilterChange('position', value || '')}
-              allowClear
-            >
-              <Option value="イラストレーター">イラストレーター</Option>
-              <Option value="アニメーター">アニメーター</Option>
-              <Option value="デザイナー">デザイナー</Option>
-            </Select>
-          </Col>
-        </Row>
-
-        <Row gutter={16} style={{ marginBottom: '24px' }}>
-          <Col span={4}>
-            <Select
               placeholder="子职位"
               style={{ width: '100%' }}
               value={filters.subPosition || undefined}
@@ -392,31 +333,6 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
               <Option value="UI">UI</Option>
               <Option value="banner">banner</Option>
               <Option value="background">background</Option>
-            </Select>
-          </Col>
-          <Col span={4}>
-            <Select
-              placeholder="状态"
-              style={{ width: '100%' }}
-              value={filters.status || undefined}
-              onChange={(value) => handleFilterChange('status', value || '')}
-              allowClear
-            >
-              <Option value="在职">在职</Option>
-              <Option value="离职">离职</Option>
-            </Select>
-          </Col>
-          <Col span={4}>
-            <Select
-              placeholder="雇佣类型"
-              style={{ width: '100%' }}
-              value={filters.employmentType || undefined}
-              onChange={(value) => handleFilterChange('employmentType', value || '')}
-              allowClear
-            >
-              <Option value="正社员">正社员</Option>
-              <Option value="契约工">契约工</Option>
-              <Option value="派遣">派遣</Option>
             </Select>
           </Col>
         </Row>
@@ -448,7 +364,7 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
             defaultPageSize: 10,
             pageSizeOptions: ['10', '20', '50', '100']
           }}
-          scroll={{ x: 1400 }}
+          scroll={{ x: 1000 }}
           size="middle"
           rowSelection={
             // 只有admin和cp-leader可以选择行
@@ -462,7 +378,7 @@ const CPEmployeeManager: React.FC<CPEmployeeManagerProps> = ({
         />
       </Card>
 
-      {/* 添加员工抽屉 - 只有admin和cp-leader可以看到 */}
+      {/* 添加员工抽屉保持不变 */}
       {(accountType === 'admin' || accountType === 'cp-leader') && (
         <Drawer
           title="添加员工"
